@@ -76,11 +76,16 @@ class RsyncTask extends AbstractTask implements IsReleaseAware
             $this->runCommandRemote('mkdir -p ' . $releasesDirectory . '/' . $this->getConfig()->getReleaseId());
         }
 
+        $userPrefix = '';
+        if ($this->getConfig()->deployment('user') != '') {
+            $userPrefix = $this->getConfig()->deployment('user') . '@';
+        }
+
         $command = 'rsync -avz '
                  . '--rsh="ssh -p' . $this->getConfig()->getHostPort() . '" '
                  . $this->excludes(array_merge($excludes, $userExcludes)) . ' '
                  . $this->getConfig()->deployment('from') . ' '
-                 . $this->getConfig()->deployment('user') . '@' . $this->getConfig()->getHostName() . ':' . $deployToDirectory;
+                 . $userPrefix . $this->getConfig()->getHostName() . ':' . $deployToDirectory;
 
         $result = $this->runCommandLocal($command);
 

@@ -88,9 +88,14 @@ class TarGzTask extends AbstractTask implements IsReleaseAware
         $command = 'tar cfz ' . $localTarGz . '.tar.gz ' . $excludeCmd . ' ' . $this->getConfig()->deployment('from');
         $result = $this->runCommandLocal($command);
 
+        $userPrefix = '';
+        if ($this->getConfig()->deployment('user') != '') {
+            $userPrefix = $this->getConfig()->deployment('user') . '@';
+        }
+
         // Copy Tar Gz  to Remote Host
         $command = 'scp -P ' . $this->getConfig()->getHostPort() . ' ' . $localTarGz . '.tar.gz '
-                 . $this->getConfig()->deployment('user') . '@' . $this->getConfig()->getHostName() . ':' . $deployToDirectory;
+                 . $userPrefix . $this->getConfig()->getHostName() . ':' . $deployToDirectory;
         $result = $this->runCommandLocal($command) && $result;
 
         // Extract Tar Gz

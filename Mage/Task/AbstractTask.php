@@ -189,9 +189,14 @@ abstract class AbstractTask
             $releasesDirectory = '';
         }
 
+        $userPrefix = '';
+        if ($this->getConfig()->deployment('user') != '') {
+            $userPrefix = $this->getConfig()->deployment('user') . '@';
+        }
+
         $localCommand = 'ssh -p ' . $this->getConfig()->getHostPort() . ' '
                       . '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no '
-                      . $this->getConfig()->deployment('user') . '@' . $this->getConfig()->getHostName() . ' '
+                      . $userPrefix . $this->getConfig()->getHostName() . ' '
                       . '"cd ' . rtrim($this->getConfig()->deployment('to'), '/') . $releasesDirectory . ' && '
                       . str_replace('"', '\"', $command) . '"';
 
