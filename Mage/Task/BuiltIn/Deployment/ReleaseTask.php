@@ -46,26 +46,25 @@ class ReleaseTask extends AbstractTask implements IsReleaseAware, SkipOnOverride
 
             $currentCopy = $releasesDirectory . '/' . $this->getConfig()->getReleaseId();
 
-            // Fetch the user and group from base directory; defaults usergroup to 33:33
-            $userGroup = '';
-            $resultFetch = $this->runCommandRemote('ls -ld . | awk \'{print \$3":"\$4}\'', $userGroup);
-
             // Remove symlink if exists; create new symlink and change owners
             $command = 'rm -f ' . $symlink
                      . ' ; '
                      . 'ln -sf ' . $currentCopy . ' ' . $symlink;
-
-            if ($resultFetch && $userGroup != '') {
-            	$command .= ' && '
-                          . 'chown -h ' . $userGroup . ' ' . $symlink
-                          . ' && '
-                          . 'chown -R ' . $userGroup . ' ' . $currentCopy;
-            }
-
             $result = $this->runCommandRemote($command);
 
-            // Set Directory Releases to same owner
-            $result = $this->runCommandRemote('chown ' . $userGroup . ' ' . $releasesDirectory);
+            // Fetch the user and group from base directory, make user/group owner of newly deployed release
+            $userGroup = '';
+            $resultFetch = $this->runCommandRemote('ls -ld . | awk \'{print \$3":"\$4}\'', $userGroup);
+
+            if ($resultFetch && $userGroup != '') {
+                $commands = [
+                    'chown -h ' . $userGroup . ' ' . $symlink,
+                    'chown -R ' . $userGroup . ' ' . $currentCopy,
+                    'chown ' . $userGroup . ' ' . $releasesDirectory
+                ];
+                // don't check the output result: if chown fails, fail silently
+                $this->runCommandRemote(implode(' && ', $commands));
+            }
 
             return $result;
 
@@ -73,5 +72,5 @@ class ReleaseTask extends AbstractTask implements IsReleaseAware, SkipOnOverride
             return false;
         }
     }
-
 }
+
