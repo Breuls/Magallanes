@@ -26,4 +26,9 @@ array_shift($argv);
 
 // Run Magallanes
 $console = new Mage\Console;
-$console->run($argv);
+$result = $console->run($argv);
+if ($result === true) {
+    exit(0);
+} else {
+    exit(1);
+}
