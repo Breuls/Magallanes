@@ -104,13 +104,13 @@ class DeployCommand extends AbstractCommand implements RequiresEnvironment
     	$lockFile = '.mage/' . $this->getConfig()->getEnvironment() . '.lock';
     	if (file_exists($lockFile)) {
     		Console::output('<red>This environment is locked!</red>', 1, 2);
-    		return;
+    		return false;
     	}
 
     	// Check for running instance and Lock
     	if (file_exists('.mage/~working.lock')) {
     		Console::output('<red>There is already an instance of Magallanes running!</red>', 1, 2);
-    		return;
+    		return false;
     	} else {
     		touch('.mage/~working.lock');
     	}
@@ -184,6 +184,12 @@ class DeployCommand extends AbstractCommand implements RequiresEnvironment
         if (file_exists('.mage/~working.lock')) {
         	unlink('.mage/~working.lock');
         }
+
+        if (self::$deployStatus === self::FAILED) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
