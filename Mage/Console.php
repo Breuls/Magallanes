@@ -108,7 +108,7 @@ class Console
         // Run Command - Check if there is a Configuration Error
         if ($configError !== false) {
             self::output('<red>' . $configError . '</red>', 1, 2);
-
+            $commandResult = false;
         } else {
         	// Run Command and check for Command Requirements
             try {
@@ -119,10 +119,11 @@ class Console
                         throw new Exception('You must specify an environment for this command.');
                     }
                 }
-                $command->run();
+                $commandResult = $command->run();
 
             } catch (Exception $exception) {
                 self::output('<red>' . $exception->getMessage() . '</red>', 1, 2);
+                $commandResult = false;
             }
         }
 
@@ -135,6 +136,7 @@ class Console
 
         // Check if logs need to be deleted
         self::checkLogs($config);
+        return $commandResult;
     }
 
     /**
