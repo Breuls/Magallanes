@@ -269,7 +269,7 @@ class DeployCommand extends AbstractCommand implements RequiresEnvironment
     protected function runDeploymentTasks()
     {
     	if (self::$deployStatus == self::FAILED) {
-    		return;
+    		return false;
     	}
 
     	// Run Tasks for Deployment
@@ -419,7 +419,9 @@ class DeployCommand extends AbstractCommand implements RequiresEnvironment
 
     						if ($this->runTask($task)) {
     							$completedTasks++;
-    						}
+    						} else {
+                                self::$failedTasks++;
+                            }
     					}
 
     					if ($completedTasks == $tasks) {
